@@ -1,0 +1,10 @@
+native-host/bin/
+native-host/obj/
+native-host/publish/
+native-host/installer/bin/
+native-host/installer/obj/
+native-host/installer/publish/
+native-host/installer/payload/
+dist/
+*.user
+*.pdb

@@ -1,0 +1,9 @@
+{
+    "name":  "com.dashboard_zen.bridge",
+    "description":  "TASHBOARD Native Messaging Bridge",
+    "path":  "C:\\Users\\USERNAME\\AppData\\Local\\TASHBOARD\\Bridge\\DashboardZenBridge.exe",
+    "type":  "stdio",
+    "allowed_origins":  [
+                            "chrome-extension://nliabhpaphdkjelcooohajbpoijkalch/"
+                        ]
+}

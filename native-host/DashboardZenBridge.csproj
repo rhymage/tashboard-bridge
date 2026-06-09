@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>DashboardZenBridge</AssemblyName>
+    <RootNamespace>DashboardZenBridge</RootNamespace>
+    <ApplicationIcon>assets\tashboard-bridge.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="installer\**\*.cs" />
+    <EmbeddedResource Remove="installer\**\*" />
+    <None Remove="installer\**\*" />
+  </ItemGroup>
+</Project>
