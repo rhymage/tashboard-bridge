@@ -8,7 +8,6 @@ perform directly:
 - choose and open local folders
 - save and restore project configuration files
 - show whether linked folders are open
-- create local backups in `Documents\TASHBOARD Backups`
 
 ## Install
 

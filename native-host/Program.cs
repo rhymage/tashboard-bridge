@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -11,10 +10,6 @@ namespace DashboardZenBridge;
 internal static class Program
 {
     private const string ConfigFileName = ".zen_config.json";
-    private static readonly string BackupDirectory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        "TASHBOARD Backups"
-    );
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
     [STAThread]
@@ -59,7 +54,6 @@ internal static class Program
             "getOpenPaths" => GetOpenPaths(),
             "saveConfig" => SaveConfig(request),
             "loadConfig" => LoadConfig(GetRequiredString(request, "path")),
-            "backupAll" => BackupAll(request),
             _ => Error($"Unknown action: {action}")
         };
     }
@@ -158,38 +152,6 @@ internal static class Program
         return Ok(config);
     }
 
-    private static JsonObject BackupAll(JsonObject request)
-    {
-        Directory.CreateDirectory(BackupDirectory);
-
-        string timestamp = request["timestamp"]?.GetValue<string>() ?? DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        string baseName = $"tashboard_{timestamp}";
-
-        string? imageData = request["imageData"]?.GetValue<string>();
-        string? pngPath = null;
-        if (!string.IsNullOrWhiteSpace(imageData))
-        {
-            const string prefix = "data:image/png;base64,";
-            string base64 = imageData.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-                ? imageData[prefix.Length..]
-                : imageData;
-            pngPath = Path.Combine(BackupDirectory, $"{baseName}.png");
-            File.WriteAllBytes(pngPath, Convert.FromBase64String(base64));
-        }
-
-        string appRoot = ResolveAppBackupPath(request);
-        string zipPath = Path.Combine(BackupDirectory, $"{baseName}.zip");
-        if (File.Exists(zipPath)) File.Delete(zipPath);
-        ZipFile.CreateFromDirectory(appRoot, zipPath, CompressionLevel.Optimal, includeBaseDirectory: true);
-
-        return Ok(new JsonObject
-        {
-            ["pngPath"] = pngPath,
-            ["zipPath"] = zipPath,
-            ["appRoot"] = appRoot
-        });
-    }
-
     private static JsonObject GetOpenPaths()
     {
         var paths = new List<string>();
@@ -264,29 +226,6 @@ internal static class Program
     private static string NormalizeWindowsPath(string path)
     {
         return Path.GetFullPath(path).TrimEnd('\\', '/').ToLowerInvariant();
-    }
-
-    private static string ResolveAppBackupPath(JsonObject request)
-    {
-        string requestedPath = request["appBackupPath"]?.GetValue<string>() ?? "";
-        if (string.IsNullOrWhiteSpace(requestedPath))
-        {
-            throw new InvalidOperationException("App backup folder was not provided.");
-        }
-        string fullPath = Path.GetFullPath(requestedPath);
-
-        if (!Directory.Exists(fullPath))
-        {
-            throw new DirectoryNotFoundException($"App backup folder was not found: {fullPath}");
-        }
-
-        if (!File.Exists(Path.Combine(fullPath, "manifest.json")) ||
-            !File.Exists(Path.Combine(fullPath, "sidepanel.js")))
-        {
-            throw new InvalidOperationException($"Backup target is not the TASHBOARD extension folder: {fullPath}");
-        }
-
-        return fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
 
     private static JsonObject? ReadMessage(Stream input)
