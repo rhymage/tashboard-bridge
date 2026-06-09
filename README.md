@@ -2,6 +2,8 @@
 
 Windows Native Messaging bridge for the TASHBOARD Chrome extension.
 
+[Privacy Policy](PRIVACY_POLICY.md)
+
 The bridge enables user-initiated local features that Chrome extensions cannot
 perform directly:
 
